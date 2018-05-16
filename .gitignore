@@ -30,6 +30,13 @@
 *.exe
 *.out
 *.app
+
 # HELib generates executables with trailing _x
 *_x
 
+# Vim files
+*.swp
+*.swo
+
+# Mac files
+*.DS_Store
