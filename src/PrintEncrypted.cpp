@@ -1,6 +1,5 @@
-/* A very simple program that encrypts a string and prints
- * out its encrypted form
- */
+/* A simple program that demonstrates a simple homomorphic program on 4 input values.
+ * */
 
 #include <iostream>
 #include <NTL/ZZ.h>
