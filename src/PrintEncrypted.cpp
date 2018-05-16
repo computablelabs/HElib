@@ -143,36 +143,36 @@ int main(int argc, char *argv[])
   NewPlaintextArray p2(ea);
   NewPlaintextArray p3(ea);
 
-  //random(ea, p0);
+  random(ea, p0);
   random(ea, p1);
   random(ea, p2);
   random(ea, p3);
 
   Ctxt c0(publicKey), c1(publicKey), c2(publicKey), c3(publicKey);
 
-  vector<ZZX> ptxts[1];
-  ZZX ptxt;
-  ptxt.SetLength(3);
-  ptxt[0] = 1;
-  ptxt[1] = 2;
-  ptxt[2] = 3;
-  std::cout << "ptxt: " << ptxt << endl;
-  std::cout << "ptxt[0]: " << ptxt[0] << endl;
-  //ptxts[0] = ptxt;
-  std::cout << "ptxts[0]: " << ptxts[0] << endl;
-  ea.decode(ptxts[0], ptxt);
-  std::cout << "ptxts: " << ptxts << endl;
-  std::cout << "ptxts[0]: " << ptxts[0] << endl;
+  //vector<ZZX> ptxts[1];
+  //ZZX ptxt;
+  //ptxt.SetLength(3);
+  //ptxt[0] = 1;
+  //ptxt[1] = 2;
+  //ptxt[2] = 3;
+  //std::cout << "ptxt: " << ptxt << endl;
+  //std::cout << "ptxt[0]: " << ptxt[0] << endl;
+  ////ptxts[0] = ptxt;
+  //std::cout << "ptxts[0]: " << ptxts[0] << endl;
+  //ea.decode(ptxts[0], ptxt);
+  //std::cout << "ptxts: " << ptxts << endl;
+  //std::cout << "ptxts[0]: " << ptxts[0] << endl;
   //vector<long> input1;
   //convert(input, input1);
   //std::cout << "p0 before encode: " << p0 << endl;
   //ea.encode(ptxt, p0);
-  std::cout << "ptxt: " << ptxt << endl;
+  //std::cout << "ptxt: " << ptxt << endl;
   //std::cout << "p0 after encode: " << p0 << endl;
   //ea.encrypt(c0, publicKey, p0);
-  ea.encrypt(c0, publicKey, ptxts);
   //ea.encrypt(c0, publicKey, p0);
   // {ZZX ppp0; ea.encode(ppp0, p0); c0.DummyEncrypt(ppp0);} // dummy encryption
+  ea.encrypt(c0, publicKey, p0);
   ea.encrypt(c1, publicKey, p1); // real encryption
   ea.encrypt(c2, publicKey, p2); // real encryption
   ea.encrypt(c3, publicKey, p3); // real encryption
