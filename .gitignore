@@ -40,3 +40,6 @@
 
 # Mac files
 *.DS_Store
+
+# GH-pages (copied over from original .gitignore)
+gh-pages/
