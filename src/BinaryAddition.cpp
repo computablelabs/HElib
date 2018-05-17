@@ -24,7 +24,10 @@
 
 namespace std {} using namespace std;
 static std::vector<zzX> unpackSlotEncoding; // a global variable
-static bool verbose=false;
+
+// This table provides a set of precomputed "secure parameters.
+// TODO: Build utilities so we can generate secure parameters on demand for the
+// program at hand.
 static long mValues[][15] = { 
 // { p, phi(m),   m,   d, m1, m2, m3,    g1,   g2,   g3, ord1,ord2,ord3, B,c}
   {  2,    48,   105, 12,   3, 35,  0,    71,    76,    0,   2,  2,   0, 25, 2},
@@ -41,60 +44,36 @@ int main(int argc, char *argv[])
 {
   ArgMapping amap;
 
-  // TODO: What does this do?
+  // Selects the security level. Larger integers require larger security. 
   long prm=1;
   amap.arg("prm", prm, "parameter size (0-tiny,...,7-huge)");
 
+  // Number of bits needed to specify first summand.
   long bitSize1 = 5;
   amap.arg("bitSize1", bitSize1, "bitSize of input integers (<=32)");
+  // First summand integer
   long input1 = 0;
   amap.arg("input1", input1, "First input integer. At most bitSize1 bits!");
 
+  // Number of bits needed to specify second summand.
   long bitSize2 = 0;
   amap.arg("bitSize2", bitSize2, "bitSize of 2nd input integer (<=32)",
            "same as bitSize");
+  // Second summand integer
   long input2 = 0;
   amap.arg("input2", input2, "First input integer. At most bitSize2 bits!");
 
+  // Size of the sum in bits.
   long outSize = 0;
   amap.arg("outSize", outSize, "bitSize of output integers", "as many as needed");
-
-
-  long nTests = 2;
-  amap.arg("nTests", nTests, "number of tests to run");
 
   // Random seed used in scheme.
   long seed=0;
   amap.arg("seed", seed, "PRG seed");
 
-  // The number of rounds of encrypted computation. If R >
-  // 1, then we need to "bootstrap" between rounds which
-  // adds a heavy computational overhead.
-  long R=1;
-  amap.arg("R", R, "number of rounds");
-
-  // Technical parameter. In case r=1, then plaintext entries are just bits.
-  long r=1;
-  amap.arg("r", r,  "lifting");
-
-  long d=1;
-  amap.arg("d", d, "degree of the field extension");
-
-  // The number of "bits" of security the scheme provides
-  // (see https://en.wikipedia.org/wiki/Security_level).
-  // Basic idea is that for a security level of 80, the
-  // attacker needs to perform ~2^80 operations to break
-  // the scheme.
-  long k=80;
-  amap.arg("k", k, "security parameter");
-
-  long s=0;
-  amap.arg("s", s, "minimum number of slots");
-
   amap.parse(argc, argv);
 
   assert(prm >= 0 && prm < 5);
-
   SetSeed(ZZ(seed));
 
   if (bitSize1<=0) bitSize1=5;
@@ -102,40 +81,49 @@ int main(int argc, char *argv[])
   if (bitSize2<=0) bitSize2=bitSize1;
   else if (bitSize2>32) bitSize2=32;
 
+  // Check that inputs are can fir within specified bits.
+  assert(input1 < pow(2, bitSize1));
+  assert(input2 < pow(2, bitSize2));
+  cout << "Checked that inputs fit within the specified number of bits." <<
+    endl;
+
+
   long* vals = mValues[prm];
   long p = vals[0];
   //  long phim = vals[1];
-  long m = vals[2];
+  long cyclotomic_degree = vals[2];
 
+  // TODO:I'm not entirely sure what mvec is. I think it's the explicit
+  // parameters that specify the cyclotomic polynomial of that degree, but not
+  // sure.
   NTL::Vec<long> mvec;
   append(mvec, vals[4]);
   if (vals[5]>1) append(mvec, vals[5]);
   if (vals[6]>1) append(mvec, vals[6]);
 
-  std::vector<long> gens;
-  gens.push_back(vals[7]);
-  if (vals[8]>1) gens.push_back(vals[8]);
-  if (vals[9]>1) gens.push_back(vals[9]);
+  std::vector<long> generators;
+  generators.push_back(vals[7]);
+  if (vals[8]>1) generators.push_back(vals[8]);
+  if (vals[9]>1) generators.push_back(vals[9]);
 
-  std::vector<long> ords;
-  ords.push_back(vals[10]);
-  if (abs(vals[11])>1) ords.push_back(vals[11]);
-  if (abs(vals[12])>1) ords.push_back(vals[12]);
+  std::vector<long> orders;
+  orders.push_back(vals[10]);
+  if (abs(vals[11])>1) orders.push_back(vals[11]);
+  if (abs(vals[12])>1) orders.push_back(vals[12]);
 
-  long B = vals[13];
+  long bits_per_level = vals[13];
   long c = vals[14];
 
   // Compute the number of levels
-  long L;
+  long num_levels;
   double nBits =
     (outSize>0 && outSize<2*bitSize1)? outSize : (2*bitSize1);
-  double three4twoLvls = log(nBits/2) / log(1.5);
   double add2NumsLvls = log(nBits) / log(2.0);
-  L = 3 + ceil(three4twoLvls + add2NumsLvls);
+  num_levels = 3 + add2NumsLvls;
+
 
   cout <<"input bitSizes="<<bitSize1<<','<<bitSize2
-        <<", output size bound="<<outSize
-        <<", running "<<nTests<<" tests for each function\n";
+        <<", output size bound="<<outSize;
   cout << "computing key-independent tables..." << std::flush;
 
   // Hamming weight of secret key
@@ -145,9 +133,9 @@ int main(int argc, char *argv[])
   // FHEcontext is a convenient book-keeping class that
   // stores a variety of parameters tied to the fully
   // homomorphic encryption scheme.
-  FHEcontext context(m, p, /*r=*/1, gens, ords);
-  context.bitsPerLevel = B;
-  buildModChain(context, L, c,/*extraBits=*/8);
+  FHEcontext context(cyclotomic_degree, p, /*r=*/1, generators, orders);
+  context.bitsPerLevel = bits_per_level;
+  buildModChain(context, num_levels, c,/*extraBits=*/8);
   context.makeBootstrappable(mvec, /*t=*/0,
                               /*flag=*/false, /*cacheType=DCRT*/2);
   buildUnpackSlotEncoding(unpackSlotEncoding, *context.ea);
@@ -155,7 +143,7 @@ int main(int argc, char *argv[])
   
   cout << " done.\n";
   context.zMStar.printout();
-  cout << " L="<<L<<", B="<<B<<endl;
+  cout << " num_levels="<<num_levels<<", bits_per_level="<<bits_per_level<<endl;
   cout << "\ncomputing key-dependent tables..." << std::flush;
 
   // Print some information about the security level of the
@@ -167,7 +155,7 @@ int main(int argc, char *argv[])
   secKey.GenSecKey(/*Hweight=*/128);
   addSome1DMatrices(secKey); // compute key-switching matrices
   addFrbMatrices(secKey);
-  if (verbose) cout << " done\n";
+  cout << " done\n";
 
   activeContext = &context; // make things a little easier sometimes
 
@@ -201,11 +189,11 @@ int main(int argc, char *argv[])
 
   // Test addition
   vector<long> slots;
-  {CtPtrs_VecCt eep(eSum);  // A wrapper around the output vector
+  CtPtrs_VecCt eep(eSum);  // A wrapper around the output vector
   addTwoNumbers(eep, CtPtrs_VecCt(enca), CtPtrs_VecCt(encb),
                 outSize, &unpackSlotEncoding);
   decryptBinaryNums(slots, eep, secKey, ea);
-  } // get rid of the wrapper
+  // get rid of the wrapper
   CheckCtxt(eSum[lsize(eSum)-1], "after addition");
   long pSum = pa+pb;
   if (slots[0] != ((pa+pb)&mask)) {
@@ -218,18 +206,5 @@ int main(int argc, char *argv[])
   if (outSize) cout << "bottom "<<outSize<<" bits of ";
   cout << pa<<"+"<<pb<<"="<<slots[0]<<endl;
 
-  const Ctxt* minCtxt = nullptr;
-  long minLvl=1000;
-  for (const Ctxt& c: eSum) {
-    long lvl = c.findBaseLevel();
-    if (lvl < minLvl) {
-      minCtxt = &c;
-      minLvl = lvl;
-    }
-  }
-  decryptAndPrint((cout<<" after addition: "), *minCtxt, secKey, ea,0);
-  cout << endl;
   cout << "  *** testAdd PASS ***\n";
-
-
 }
