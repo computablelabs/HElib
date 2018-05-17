@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
 
 
   cout <<"input bitSizes="<<bitSize1<<','<<bitSize2
-        <<", output size bound="<<outSize;
+        <<", output size bound="<<outSize << endl;
   cout << "computing key-independent tables..." << std::flush;
 
   // Hamming weight of secret key
@@ -141,9 +141,7 @@ int main(int argc, char *argv[])
   buildUnpackSlotEncoding(unpackSlotEncoding, *context.ea);
 
   
-  cout << " done.\n";
-  context.zMStar.printout();
-  cout << " num_levels="<<num_levels<<", bits_per_level="<<bits_per_level<<endl;
+  cout << "num_levels="<<num_levels<<", bits_per_level="<<bits_per_level<<endl;
   cout << "\ncomputing key-dependent tables..." << std::flush;
 
   // Print some information about the security level of the
@@ -155,7 +153,6 @@ int main(int argc, char *argv[])
   secKey.GenSecKey(/*Hweight=*/128);
   addSome1DMatrices(secKey); // compute key-switching matrices
   addFrbMatrices(secKey);
-  cout << " done\n";
 
   activeContext = &context; // make things a little easier sometimes
 
