@@ -15,18 +15,12 @@
 #include <cmath>
 #include <algorithm>
 #include <NTL/BasicThreadPool.h>
-NTL_CLIENT
-
 #include "EncryptedArray.h"
 #include "FHE.h"
 
 #include "intraSlot.h"
 #include "binaryArith.h"
-#define DEBUG_PRINTOUT 1
-
-#ifdef DEBUG_PRINTOUT
 #include "debugging.h"
-#endif
 
 namespace std {} using namespace std;
 static std::vector<zzX> unpackSlotEncoding; // a global variable
@@ -69,15 +63,13 @@ int main(int argc, char *argv[])
   long nTests = 2;
   amap.arg("nTests", nTests, "number of tests to run");
 
-  bool bootstrap = false;
-  amap.arg("bootstrap", bootstrap, "test multiplication with bootstrapping");
-
   // Random seed used in scheme.
   long seed=0;
   amap.arg("seed", seed, "PRG seed");
 
-  // The number of rounds of encrypted computation. If R > 1, then we need to
-  // "bootstrap" between rounds which adds a heavy computational overhead.
+  // The number of rounds of encrypted computation. If R >
+  // 1, then we need to "bootstrap" between rounds which
+  // adds a heavy computational overhead.
   long R=1;
   amap.arg("R", R, "number of rounds");
 
@@ -88,10 +80,11 @@ int main(int argc, char *argv[])
   long d=1;
   amap.arg("d", d, "degree of the field extension");
 
-  // The number of "bits" of security the scheme provides (see
-  // https://en.wikipedia.org/wiki/Security_level). Basic idea is that for a
-  // security level of 80, the attacker needs to perform ~2^80 operations to
-  // break the scheme.
+  // The number of "bits" of security the scheme provides
+  // (see https://en.wikipedia.org/wiki/Security_level).
+  // Basic idea is that for a security level of 80, the
+  // attacker needs to perform ~2^80 operations to break
+  // the scheme.
   long k=80;
   amap.arg("k", k, "security parameter");
 
@@ -134,14 +127,11 @@ int main(int argc, char *argv[])
 
   // Compute the number of levels
   long L;
-  if (bootstrap) L=30; // that should be enough
-  else {
-    double nBits =
-      (outSize>0 && outSize<2*bitSize1)? outSize : (2*bitSize1);
-    double three4twoLvls = log(nBits/2) / log(1.5);
-    double add2NumsLvls = log(nBits) / log(2.0);
-    L = 3 + ceil(three4twoLvls + add2NumsLvls);
-  }
+  double nBits =
+    (outSize>0 && outSize<2*bitSize1)? outSize : (2*bitSize1);
+  double three4twoLvls = log(nBits/2) / log(1.5);
+  double add2NumsLvls = log(nBits) / log(2.0);
+  L = 3 + ceil(three4twoLvls + add2NumsLvls);
 
   cout <<"input bitSizes="<<bitSize1<<','<<bitSize2
         <<", output size bound="<<outSize
@@ -158,10 +148,8 @@ int main(int argc, char *argv[])
   FHEcontext context(m, p, /*r=*/1, gens, ords);
   context.bitsPerLevel = B;
   buildModChain(context, L, c,/*extraBits=*/8);
-  if (bootstrap) {
-    context.makeBootstrappable(mvec, /*t=*/0,
-                               /*flag=*/false, /*cacheType=DCRT*/2);
-  }
+  context.makeBootstrappable(mvec, /*t=*/0,
+                              /*flag=*/false, /*cacheType=DCRT*/2);
   buildUnpackSlotEncoding(unpackSlotEncoding, *context.ea);
 
   
@@ -170,7 +158,8 @@ int main(int argc, char *argv[])
   cout << " L="<<L<<", B="<<B<<endl;
   cout << "\ncomputing key-dependent tables..." << std::flush;
 
-  // Print some information about the security level of the current scheme.
+  // Print some information about the security level of the
+  // current scheme.
   std::cout << "security=" << context.securityLevel()<<endl;
 
   // Stores the secret key. Almost like the FHEPubKey object, 
@@ -178,12 +167,10 @@ int main(int argc, char *argv[])
   secKey.GenSecKey(/*Hweight=*/128);
   addSome1DMatrices(secKey); // compute key-switching matrices
   addFrbMatrices(secKey);
-  if (bootstrap) secKey.genRecryptData();
   if (verbose) cout << " done\n";
 
   activeContext = &context; // make things a little easier sometimes
 
-  //testAdd(secKey, bitSize1, bitSize2, outSize, bootstrap);
   const EncryptedArray& ea = *(secKey.getContext().ea);
   long mask = (outSize? ((1L<<outSize)-1) : -1);
 
@@ -201,16 +188,10 @@ int main(int argc, char *argv[])
   resize(enca, bitSize1, Ctxt(secKey));
   for (long i=0; i<bitSize1; i++) {
     secKey.Encrypt(enca[i], ZZX((pa>>i)&1));
-    if (bootstrap) { // put them at a lower level
-      enca[i].modDownToLevel(5);
-    }
   }
   resize(encb, bitSize2, Ctxt(secKey));
   for (long i=0; i<bitSize2; i++) {
     secKey.Encrypt(encb[i], ZZX((pb>>i)&1));
-    if (bootstrap) { // put them at a lower level
-      encb[i].modDownToLevel(5);
-    }
   }
 
   cout << "\n  bits-size "<<bitSize1<<'+'<<bitSize2;
