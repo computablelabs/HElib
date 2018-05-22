@@ -1,5 +1,5 @@
 package:
-  name: python_example
+  name: hepy 
   version: {{ environ.get('GIT_DESCRIBE_TAG', 'dev') }}
 
 build:
@@ -25,8 +25,8 @@ requirements:
 
 test:
   imports:
-    - python_example
+    - hepy 
 
 about:
-  summary: An example project built with pybind11.
+  summary: A fully homomorphic python library. 
   license_file: LICENSE

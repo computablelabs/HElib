@@ -26,7 +26,7 @@ before_install:
       brew update; brew install python3;
     fi
     pip install --user --upgrade pip virtualenv
-    virtualenv -p python$PYTHON venv
+    virtualenv -p /usr/bin/python$PYTHON venv
     source venv/bin/activate
   elif [ -n "$CONDA" ]; then
     if [ "$TRAVIS_OS_NAME" = "linux" ]; then OS=Linux-x86_64; else OS=MacOSX-x86_64; fi
