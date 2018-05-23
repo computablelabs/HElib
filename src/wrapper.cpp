@@ -1,13 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/operators.h>
-
-#include "Pet.h"
 #include "Ctxt.h"
-
-int add(int i, int j) {
-    return i + j;
-}
 
 namespace py = pybind11;
 
