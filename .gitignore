@@ -43,3 +43,7 @@
 
 # GH-pages (copied over from original .gitignore)
 gh-pages/
+
+# dist/ created in local python builds
+dist/
+hepy.egg-info/
