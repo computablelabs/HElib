@@ -2,13 +2,6 @@
 #include <pybind11/stl.h>
 #include <pybind11/operators.h>
 
-//#include "FHE.h"
-//#include <NTL/ZZ.h>
-//#include <NTL/lip.h>
-//#include <NTL/tools.h>
-//#include <NTL/vector.h>
-//#include <NTL/SmartPtr.h>
-//#include <NTL/sp_arith.h>
 #include "Pet.h"
 #include "Ctxt.h"
 
