@@ -1,14 +1,33 @@
 #include <pybind11/pybind11.h>
-
-int add(int i, int j) {
-    return i + j;
-}
+#include <pybind11/stl.h>
+#include <pybind11/operators.h>
+#include "Ctxt.h"
 
 namespace py = pybind11;
 
+using namespace pybind11::literals;
+using namespace std;
+
 PYBIND11_MODULE(hepy, m) {
+
+    // Wrapping for class SKHanlde in Ctxt.h
+    py::class_<SKHandle>(m, "SKHandle")
+      .def(py::init<long, long, long>())
+      .def("setBase", &SKHandle::setBase)
+      .def("isBase", &SKHandle::isBase)
+      .def("setOne", &SKHandle::setOne)
+      .def(py::self == py::self)
+      .def(py::self != py::self)
+      .def("getPowerOfS", &SKHandle::getPowerOfS)
+      .def("getPowerOfX", &SKHandle::getPowerOfX)
+      .def("getSecretKeyID", &SKHandle::getSecretKeyID);
+      // TODO: There are a couple SKHandle methods I can't
+      // quite figure out how to wrap. Come back and add
+      // those later.
+
+
     m.doc() = R"pbdoc(
-        Pybind11 example plugin
+        Homomorphic Encryption in Python 
         -----------------------
 
         .. currentmodule:: hepy 
@@ -16,25 +35,12 @@ PYBIND11_MODULE(hepy, m) {
         .. autosummary::
            :toctree: _generate
 
-           add
            subtract
     )pbdoc";
-
-    m.def("add", &add, R"pbdoc(
-        Add two numbers
-
-        Some other explanation about the add function.
-    )pbdoc");
-
-    m.def("subtract", [](int i, int j) { return i - j; }, R"pbdoc(
-        Subtract two numbers
-
-        Some other explanation about the subtract function.
-    )pbdoc");
 
 #ifdef VERSION_INFO
     m.attr("__version__") = VERSION_INFO;
 #else
-    m.attr("__version__") = "dev";
+    m.attr("__version__") = "dev1";
 #endif
 }

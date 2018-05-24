@@ -22,12 +22,16 @@ before_install:
     conda config --add channels conda-forge
     conda update -q conda
     conda install -q conda-build
+    conda install -c conda-forge ntl 
     conda create -q -n test-environment python=$CONDA
     source activate test-environment
   fi
 install:
 - |
   if [ -n "$CONDA" ]; then
+    export CPATH=$HOME/miniconda/include:"$CPATH"
+    echo $CPATH
+    ls $HOME/miniconda/include
     conda build conda.recipe
     conda install --use-local hepy 
   fi
