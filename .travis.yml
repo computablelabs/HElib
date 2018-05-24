@@ -29,7 +29,7 @@ before_install:
 install:
 - |
   if [ -n "$CONDA" ]; then
-    export CPATH=$HOME/miniconda/include:$CPATH
+    export CPATH=$HOME/miniconda/include:"$CPATH"
     echo $CPATH
     ls $HOME/miniconda/include
     conda build conda.recipe
