@@ -9,6 +9,7 @@ build:
   script_env:
     - CC
     - CXX
+    - CPATH
 
 source:
   git_url: ../
