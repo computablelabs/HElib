@@ -25,6 +25,7 @@ before_install:
     conda create -q -n test-environment python=$CONDA
     source activate test-environment
     conda install -c conda-forge ntl 
+    export CPATH=$HOME/miniconda/include:$CPATH
   fi
 install:
 - |
