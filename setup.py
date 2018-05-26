@@ -53,8 +53,12 @@ ext_modules = [
         #  "-L " + LD_LIBRARY_PATH + " -lfhe -llibntl"
         #],
         #extra_link_args=['-static'],
+        #extra_objects=[
+        #  "/home/rbharath/anaconda3/envs/hepy/lib/fhe.a",
+        #  #"/home/rbharath/anaconda3/envs/hepy/lib/libntl.so",
+        #],
         extra_objects=[
-          "/home/rbharath/anaconda3/envs/hepy/lib/fhe.a",
+          os.path.join(LD_LIBRARY_PATH, "fhe.a")
           #"/home/rbharath/anaconda3/envs/hepy/lib/libntl.so",
         ],
         language='c++'
@@ -105,9 +109,6 @@ class BuildExt(build_ext):
 
 
     def build_extensions(self):
-        # DEBUG
-        print("HHHHHHHHHHHHHHHIIIIIIIIIIIIIIIIIIIIII")
-
         ct = self.compiler.compiler_type
         opts = self.c_opts.get(ct, [])
         if ct == 'unix':
@@ -119,7 +120,6 @@ class BuildExt(build_ext):
             opts.append('/DVERSION_INFO=\\"%s\\"' % self.distribution.get_version())
         for ext in self.extensions:
             ext.extra_compile_args = opts
-        print("IIIIIIIIIIIIIIINNNNNNNNNNNNNNNNNVVVVVVVVVVVVVVVVVV")
         build_ext.build_extensions(self)
 
 setup(
