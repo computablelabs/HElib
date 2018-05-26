@@ -8,6 +8,9 @@ import setuptools
 __version__ = '0.0.4'
 CPATH = os.getenv("CPATH")
 LD_LIBRARY_PATH = os.getenv("LD_LIBRARY_PATH")
+# Strip any colons
+CPATH = CPATH.strip(":")
+LD_LIBRARY_PATH = LD_LIBRARY_PATH.strip(":")
 print("CPATH")
 print(CPATH)
 print("LD_LIBRARY_PATH")
