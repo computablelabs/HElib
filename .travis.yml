@@ -37,8 +37,10 @@ install:
     cd src
     echo "Running make on HELib source"
     make -j4
+    echo 'ls $HOME/miniconda/envs/test-environment'
+    ls $HOME/miniconda/envs/test-environment
     echo "Copying fhe.a to lib"
-    cp fhe.a $LD_LIBRARY_PATH/
+    cp fhe.a $HOME/miniconda/envs/test-environment/lib
     cd ..
     # Displaying contents of these directories
     ls $HOME/miniconda/envs/test-environment/include
