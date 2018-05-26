@@ -33,13 +33,16 @@ install:
     export LD_LIBRARY_PATH=$HOME/miniconda/envs/test-environment/lib:"$LD_LIBRARY_PATH"
     echo $CPATH
     echo $LD_LIBRARY_PATH
-    ls $HOME/miniconda/envs/test-environment/include
-    ls $HOME/miniconda/envs/test-environment/lib
     # Building fhe.a file
     cd src
+    echo "Running make on HELib source"
     make -j4
-    cp fhe.a $LD_LIBRARY_PATH
+    echo "Copying fhe.a to lib"
+    cp fhe.a $LD_LIBRARY_PATH/
     cd ..
+    # Displaying contents of these directories
+    ls $HOME/miniconda/envs/test-environment/include
+    ls $HOME/miniconda/envs/test-environment/lib
     # Build with conda recipe
     conda build conda.recipe
     conda install --use-local hepy 
