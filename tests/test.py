@@ -48,6 +48,25 @@ def test_FHEcontext_init():
   ords = []
   fhe_context = hepy.FHEcontext(m, p, r, gens, ords)
 
+def test_FindM_invocation():
+  """Test that FindM can be invoked."""
+  plaintext_base_prime = 2
+  finite_field_degree = 1
+  field_extension_deg = 1
+  num_key_columns = 2
+  security_parameter = 80
+  num_levels = 0
+  chosen_cyclotomic_degree = 0
+  num_slots = 0
+  cyclotomic_degree = hepy.FindM(security_parameter,
+                                 num_levels,
+                                 num_key_columns,
+                                 plaintext_base_prime,
+                                 finite_field_degree,
+                                 num_slots,
+                                 chosen_cyclotomic_degree,
+                                 False)
+
 
 if __name__ == "__main__":
   print("Running SKHandle tests")
@@ -56,4 +75,6 @@ if __name__ == "__main__":
   test_SKHandle_not_equality()
   print("Running FHEcontext tests")
   test_FHEcontext_init()
+  print("Running FindM tests")
+  test_FindM_invocation()
   print("All tests passed")

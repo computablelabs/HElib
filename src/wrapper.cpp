@@ -33,6 +33,17 @@ PYBIND11_MODULE(hepy, m) {
     py::class_<FHEcontext>(m, "FHEcontext")
       .def(py::init<unsigned long, unsigned long, unsigned long, const vector<long>&, const vector<long>&>());
 
+    m.def("FindM", &FindM,
+          "Returns smallest parameter m satisfying various constraints.",
+          py::arg("k"),
+          py::arg("L"),
+          py::arg("c"),
+          py::arg("p"),
+          py::arg("d"),
+          py::arg("s"),
+          py::arg("chosen_m"),
+          py::arg("verbose")=false);
+
 
     m.doc() = R"pbdoc(
         Homomorphic Encryption in Python 
