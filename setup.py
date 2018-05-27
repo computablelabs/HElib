@@ -43,26 +43,12 @@ ext_modules = [
             get_pybind_include(user=True),
             CPATH
         ],
-        #libraries=[
-        #  "/home/rbharath/anaconda3/envs/hepy/lib/fhe.a",
-        #  "/home/rbharath/anaconda3/envs/hepy/lib/libntl.a"
-        #],
         library_dirs=[
           LD_LIBRARY_PATH
         ],
-        #libraries=["fhe", "ntl"],
         libraries=["ntl"],
-        #extra_link_args=[
-        #  "-L " + LD_LIBRARY_PATH + " -lfhe -llibntl"
-        #],
-        #extra_link_args=['-static'],
-        #extra_objects=[
-        #  "/home/rbharath/anaconda3/envs/hepy/lib/fhe.a",
-        #  #"/home/rbharath/anaconda3/envs/hepy/lib/libntl.so",
-        #],
         extra_objects=[
           os.path.join(LD_LIBRARY_PATH, "fhe.a")
-          #"/home/rbharath/anaconda3/envs/hepy/lib/libntl.so",
         ],
         language='c++'
     ),
@@ -133,7 +119,6 @@ setup(
     long_description='',
     ext_modules=ext_modules,
     install_requires=['pybind11>=2.2'],
-    #cmdclass={'build_ext': build_ext},
     cmdclass={'build_ext': BuildExt},
     zip_safe=False,
 )
