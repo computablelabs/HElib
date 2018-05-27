@@ -11,6 +11,9 @@ using namespace std;
 
 PYBIND11_MODULE(hepy, m) {
 
+    // TODO(rbharath): These wrappers need comment strings
+    // and default arguments added for them.
+
     // Wrapping for class SKHandle in Ctxt.h
     py::class_<SKHandle>(m, "SKHandle")
       .def(py::init<long, long, long>())

@@ -38,9 +38,22 @@ def test_SKHandle_not_equality():
                           secret_key_id)
   assert handle != handle2
 
+def test_FHEcontext_init():
+  # TODO(rbharath): What do these numbers mean? Need to
+  # add a docstring explaining.
+  m = 5
+  p = 7
+  r = 3
+  gens = []
+  ords = []
+  fhe_context = hepy.FHEcontext(m, p, r, gens, ords)
+
+
 if __name__ == "__main__":
   print("Running SKHandle tests")
   test_SKHandle_construction()
   test_SKHandle_equality()
   test_SKHandle_not_equality()
+  print("Running FHEcontext tests")
+  test_FHEcontext_init()
   print("All tests passed")
