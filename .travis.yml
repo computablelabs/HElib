@@ -6,10 +6,6 @@ matrix:
     env: CONDA=2.7
   - os: linux
     env: CONDA=3.6
-  - os: osx
-    env: CONDA=2.7
-  - os: osx
-    env: CONDA=3.6
 before_install:
 - |
   if [ "$TRAVIS_OS_NAME" = "linux" ]; then export CXX=g++-4.8 CC=gcc-4.8; fi
@@ -22,16 +18,30 @@ before_install:
     conda config --add channels conda-forge
     conda update -q conda
     conda install -q conda-build
-    conda install -c conda-forge ntl 
     conda create -q -n test-environment python=$CONDA
     source activate test-environment
+    conda install -c conda-forge ntl 
   fi
 install:
 - |
   if [ -n "$CONDA" ]; then
-    export CPATH=$HOME/miniconda/include:"$CPATH"
+    export CPATH=$HOME/miniconda/envs/test-environment/include:"$CPATH"
+    export LD_LIBRARY_PATH=$HOME/miniconda/envs/test-environment/lib:"$LD_LIBRARY_PATH"
     echo $CPATH
-    ls $HOME/miniconda/include
+    echo $LD_LIBRARY_PATH
+    # Building fhe.a file
+    cd src
+    echo "Running make on HELib source"
+    make -j4
+    echo 'ls $HOME/miniconda/envs/test-environment'
+    ls $HOME/miniconda/envs/test-environment
+    echo "Copying fhe.a to lib"
+    cp fhe.a $HOME/miniconda/envs/test-environment/lib
+    cd ..
+    # Displaying contents of these directories
+    ls $HOME/miniconda/envs/test-environment/include
+    ls $HOME/miniconda/envs/test-environment/lib
+    # Build with conda recipe
     conda build conda.recipe
     conda install --use-local hepy 
   fi
